@@ -12,3 +12,20 @@ output:
 ## Project thoughts
 
 I am interested in exploring data related to hate crimes in the US. In particular, I am interested in investigating the question of what causes/correlates to rises in hate crimes. Do areas with more Jewish/Black/Muslim/LGBT/other marginalized groups have higher or lower rates of hate crimes? Does this relationship hold across all minority catagories, or are there differences? Are there more hate crimes in certain seasons? More around religious holidays, elections? 
+
+## Milestone 2
+FBI Hate Crime Statistics Dataset: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/downloads 
+
+Research question: Does a higher minority population mean proportionally more hate crimes?  
+
+Hypothesis: My hypothesis is that the research question will be answered in the negative. I think that I will find a negative correlation between proportion of a minority group and the proportion of hate crimes. In other words, I think that communities with a smaller prooportion of a minority group (eg: majority White counties) will have a higher proportion of hate crimes. This is because, psychologically, people fear what they don't know, so people with less experience with a given minority group may feel more inclined to commit hate crimes against that group. In the news for instance, it is typically conservative states with less thriving LGBTQ communities that have been seeing rises in anti-LGBTQ legislation, so it makes sense that this relationship would correlate with an increase in hate crimes. 
+
+Explanatory variables: My explanatory variable is the percent population of a given minority group (I will be testing Black, Jewish, LGBTQ, and Muslim populations). This is measured in number of individuals identifying as that identity divided by the total population in the county.
+
+Outcome variable: My outcome variable is the proportion of hate crimes in a given county. This is measured in number of hate crimes divided by number of people in the country. 
+
+Observed pattern: The observed pattern that would provide support for my hypothesis would be if the percent population of a given minority group and proportion of hate crimes in a county were inversely correlated. If these variables were positively correlated, my hypothesis would be disproved. 
+
+
+Do counties with a higher proportion of a minority group have a higher proportion of hate crimes relative to the population?
+
