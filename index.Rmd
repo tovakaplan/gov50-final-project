@@ -29,3 +29,34 @@ Observed pattern: The observed pattern that would provide support for my hypothe
 
 Do counties with a higher proportion of a minority group have a higher proportion of hate crimes relative to the population?
 
+```{r}
+library(tidyverse)
+```
+```{r}
+hate_crime <- read.csv("~/Downloads/hate_crime (1) 2/hate_crime/hate_crime.csv")
+```
+
+```{r}
+anti_jewish_hate_crimes <- hate_crime %>%
+  filter(bias_desc == "Anti-Jewish")
+
+summary_data <- anti_jewish_hate_crimes %>%
+  group_by(data_year, region_name) %>%
+  summarise(count = n())
+
+ggplot(data = summary_data, aes(x = data_year, y = count, fill = region_name, color = region_name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_line(size = 1) +
+  labs(title = "Anti-Jewish Hate Crimes Year-to-Year by Region",
+       x = "Year",
+       y = "Number of Hate Crimes") +
+  scale_fill_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1") +
+  labs(fill = "Region:", color = "Region:") +  
+  theme_minimal()
+```
+
+
+
+
+
