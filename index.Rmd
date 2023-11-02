@@ -1,7 +1,7 @@
 ---
 title: "Gov 50 Final Project"
 author: "Tova Kaplan"
-description: "My final project"
+description: "My Final project"
 output:
   distill::distill_article:
     self_contained: false
@@ -53,7 +53,7 @@ ggplot(data = summary_data, aes(x = data_year, y = count, fill = region_name, co
   scale_fill_brewer(palette = "Set1") +
   scale_color_brewer(palette = "Set1") +
   labs(fill = "Region:", color = "Region:") +  
-  theme_minimal()
+  theme_minimal() 
 ```
 
 
