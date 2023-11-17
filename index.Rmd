@@ -16,18 +16,17 @@ I am interested in exploring data related to hate crimes in the US. In particula
 ## Milestone 2
 FBI Hate Crime Statistics Dataset: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/downloads 
 
-Research question: Does a higher minority population mean proportionally more hate crimes?  
+Research question: Does a rise in Anti-Jewish hate crimes correlate with a rise in all other hate crimes? 
 
-Hypothesis: My hypothesis is that the research question will be answered in the negative. I think that I will find a negative correlation between proportion of a minority group and the proportion of hate crimes. In other words, I think that communities with a smaller prooportion of a minority group (eg: majority White counties) will have a higher proportion of hate crimes. This is because, psychologically, people fear what they don't know, so people with less experience with a given minority group may feel more inclined to commit hate crimes against that group. In the news for instance, it is typically conservative states with less thriving LGBTQ communities that have been seeing rises in anti-LGBTQ legislation, so it makes sense that this relationship would correlate with an increase in hate crimes. 
+Hypothesis: My hypothesis is that an increase in anti-Jewish hate crimes is positively correlated with an increase in all other hate crimes. Furthermore, I believe that I will find a strong positive correlation. This is because I think that the same underlying political and cultural currents could cause both an increase in Anti-jewish crimes and crimes against other minority groups such as African Americans, Muslims, and gay people. In addition, a rise in Anti-Jewish hate crimes could be caused by an overall increase in crime, which would also cause all other hate crimes to rise. 
 
-Explanatory variables: My explanatory variable is the percent population of a given minority group (I will be testing Black, Jewish, LGBTQ, and Muslim populations). This is measured in number of individuals identifying as that identity divided by the total population in the county.
-
-Outcome variable: My outcome variable is the proportion of hate crimes in a given county. This is measured in number of hate crimes divided by number of people in the country. 
-
-Observed pattern: The observed pattern that would provide support for my hypothesis would be if the percent population of a given minority group and proportion of hate crimes in a county were inversely correlated. If these variables were positively correlated, my hypothesis would be disproved. 
+Explanatory variables: Anti-Jewish Hate Crimes
+The outcome variable, in this case, would be "All Other Hate Crimes" or simply "Other Hate Crimes." The goal is to assess whether changes in the levels of Anti-Jewish hate crimes are associated with changes in the levels of all other hate crimes.
 
 
-Do counties with a higher proportion of a minority group have a higher proportion of hate crimes relative to the population?
+Observed pattern: The observed pattern that would provide support for my hypothesis would be if I perform a correlation analysis and discover a correlation coefficient above 0. 
+
+
 
 ```{r}
 library(tidyverse)
@@ -35,6 +34,9 @@ library(tidyverse)
 ```{r}
 hate_crime <- read.csv("~/Downloads/hate_crime (1) 2/hate_crime/hate_crime.csv")
 ```
+
+
+## Milestone 3
 
 ```{r}
 anti_jewish_hate_crimes <- hate_crime %>%
@@ -55,8 +57,40 @@ ggplot(data = summary_data, aes(x = data_year, y = count, fill = region_name, co
   labs(fill = "Region:", color = "Region:") +  
   theme_minimal() 
 ```
+## Milestone 4
+
+```{r}
+hate_crime_subset <- hate_crime %>%
+  mutate(group = ifelse(bias_desc == "Anti-Jewish", "Anti-Jewish", "Other Hate Crimes")) %>%
+  group_by(data_year, group) %>%
+  summarise(count = n()) %>%
+  ungroup()
 
 
+hate_crime_pivot <- hate_crime_subset %>%
+  pivot_wider(names_from = group, values_from = count, values_fill = 0)
+
+
+correlation <- cor(hate_crime_pivot[, -1], method = "pearson")[1, 2]
+
+
+ggplot(hate_crime_subset, aes(x = data_year, y = count, color = group)) +
+  geom_line() +
+  labs(title = "Trends in Anti-Jewish and Other Hate Crimes Over Time",
+       x = "Year",
+       y = "Number of Hate Crimes",
+       color = "Hate Crime Type") +
+  theme_minimal()
+
+cat("Correlation between Anti-Jewish and Other Hate Crimes:", correlation, "\n")
+```
+```{r}
+correlation <- cor(hate_crime_pivot[, -1], method = "pearson")[1, 2]
+
+cat("Correlation between Anti-Jewish and Other Hate Crimes:", correlation, "\n")
+```
+
+The correlation found between Anti-Jewish and all other hate crimes is 0.465, which indicates a moderately strong positive correlation. 
 
 
 
