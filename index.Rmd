@@ -90,7 +90,219 @@ correlation <- cor(hate_crime_pivot[, -1], method = "pearson")[1, 2]
 cat("Correlation between Anti-Jewish and Other Hate Crimes:", correlation, "\n")
 ```
 
+```{r}
+cor_hatecrimes <- cor(hate_crime$anti_jewish_hate_crimes, hate_crime$rr_lag, use = "pairwise")
+cor_hatecrimes
+```
+
+
 The correlation found between Anti-Jewish and all other hate crimes is 0.465, which indicates a moderately strong positive correlation. 
 
 
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+hate_crime_subset <- hate_crime %>%
+  mutate(group = ifelse(bias_desc == "Anti-Jewish", "Anti-Jewish", "Other Hate Crimes")) %>%
+  group_by(data_year, group) %>%
+  summarise(count = n()) %>%
+  pivot_wider(names_from = group, values_from = count, values_fill = 0) %>%
+  ungroup() %>%
+  mutate(total_count = rowSums(select(., starts_with("Anti-Jewish"))))
+
+# View the resulting data frame
+print(hate_crime_subset)
+```
+```{r}
+library(dplyr)
+library(tidyr)
+
+hate_crime_subset <- hate_crime %>%
+  group_by(data_year) %>%
+  summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+            total_count = n())
+
+# View the resulting data frame
+print(hate_crime_subset)
+```
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+hate_crime_subset <- hate_crime %>%
+  group_by(data_year) %>%
+  summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+            total_count = n())
+
+correlation <- cor(hate_crime_subset[, -1], method = "pearson")[1, 2]
+
+ggplot(hate_crime_subset, aes(x = data_year)) +
+  geom_line(aes(y = anti_jewish_count, color = "Anti-Jewish"), size = 1.5) +
+  geom_line(aes(y = total_count, color = "Total Hate Crimes"), linetype = "dashed", size = 1.5) +
+  labs(title = "Trends in Anti-Jewish and Total Hate Crimes Over Time",
+       x = "Year",
+       y = "Number of Hate Crimes",
+       color = "Hate Crime Type") +
+  theme_minimal()
+
+cat("Correlation between Anti-Jewish and Total Hate Crimes:", correlation, "\n")
+```
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+hate_crime_subset <- hate_crime %>%
+  group_by(data_year) %>%
+  summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+            total_count = n()) %>%
+  mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+correlation <- cor(hate_crime_subset[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
+
+ggplot(hate_crime_subset, aes(x = data_year, y = percent_anti_jewish)) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
+  labs(title = "Percentage of Anti-Jewish Hate Crimes Over Total Hate Crimes",
+       x = "Year",
+       y = "Percentage of Anti-Jewish Hate Crimes",
+       color = "Hate Crime Type") +
+  theme_minimal() + geom_point()
+
+cat("Correlation between Anti-Jewish and Total Hate Crimes:", correlation, "\n")
+```
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# "regions" variable
+regions <- unique(hate_crime$region_name)
+
+# List to store ggplot objects
+plots <- list()
+
+for (reg in regions) {
+  subset_data <- hate_crime %>%
+    filter(region_name == reg) %>%
+    group_by(data_year) %>%
+    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+              total_count = n()) %>%
+    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+  correlation <- cor(subset_data[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
+
+  plot <- ggplot(subset_data, aes(x = data_year, y = percent_anti_jewish)) +
+    geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
+    labs(title = paste("Percentage of Anti-Jewish Hate Crimes in", reg),
+         x = "Year",
+         y = "Percentage of Anti-Jewish Hate Crimes (%)") +
+    theme_minimal() +
+    geom_point()
+
+  plots[[reg]] <- plot
+
+  cat("Correlation between Anti-Jewish and Total Hate Crimes in", reg, ":", correlation, "\n")
+}
+
+# Display the plots
+plots
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+regions <- unique(hate_crime$region_name)
+
+plots <- list()
+
+for (reg in regions) {
+  subset_data <- hate_crime %>%
+    filter(region_name == reg) %>%
+    group_by(data_year) %>%
+    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+              total_count = n()) %>%
+    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+  correlation <- cor(subset_data[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
+
+  lm_model <- lm(percent_anti_jewish ~ data_year, data = subset_data)
+  intercept <- coef(lm_model)[1]
+  slope <- coef(lm_model)[2]
+
+  equation_text <- sprintf("y = %.2f x + %.2f", slope, intercept)
+
+  plot <- ggplot(subset_data, aes(x = data_year, y = percent_anti_jewish)) +
+    geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
+    geom_point() +
+    labs(title = paste("Percentage of Anti-Jewish Hate Crimes in", reg),
+         x = "Year",
+         y = "Percentage of Anti-Jewish Hate Crimes",
+         subtitle = equation_text) +
+    theme_minimal()
+
+  plots[[reg]] <- plot
+
+  cat("Regression equation for Anti-Jewish and Total Hate Crimes in", reg, ":", equation_text, "\n")
+}
+
+# Display the plots
+for (i in seq_along(plots)) {
+  print(plots[[i]])
+}
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+
+regions <- unique(hate_crime$region_name)
+
+plots <- list()
+
+for (reg in regions) {
+  # Exclude "Other" and "U.S. Territories"
+  if (reg %in% c("Other", "U.S. Territories")) {
+    next
+  }
+
+  subset_data <- hate_crime %>%
+    filter(region_name == reg) %>%
+    group_by(data_year) %>%
+    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+              total_count = n()) %>%
+    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+  correlation <- cor(subset_data[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
+
+  lm_model <- lm(percent_anti_jewish ~ data_year, data = subset_data)
+  intercept <- coef(lm_model)[1]
+  slope <- coef(lm_model)[2]
+
+  equation_text <- sprintf("y = %.2f x + %.2f", slope, intercept)
+
+  plot <- ggplot(subset_data, aes(x = data_year, y = percent_anti_jewish)) +
+    geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
+    geom_point() +
+    labs(title = paste("Percentage of Anti-Jewish Hate Crimes in", reg),
+         x = "Year",
+         y = "Percentage of Anti-Jewish Hate Crimes",
+         subtitle = equation_text) +
+    theme_minimal()
+
+  plots[[reg]] <- plot
+
+  cat("Regression equation for Anti-Jewish and Total Hate Crimes in", reg, ":", equation_text, "\n")
+}
+
+# Display the plots
+for (i in seq_along(plots)) {
+  print(plots[[i]])
+}
+```
 
