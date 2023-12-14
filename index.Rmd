@@ -60,31 +60,6 @@ ggplot(data = summary_data, aes(x = data_year, y = count, fill = region_name, co
 ## Milestone 4
 
 ```{r}
-hate_crime_subset <- hate_crime %>%
-  mutate(group = ifelse(bias_desc == "Anti-Jewish", "Anti-Jewish", "Other Hate Crimes")) %>%
-  group_by(data_year, group) %>%
-  summarise(count = n()) %>%
-  ungroup()
-
-
-hate_crime_pivot <- hate_crime_subset %>%
-  pivot_wider(names_from = group, values_from = count, values_fill = 0)
-
-
-correlation <- cor(hate_crime_pivot[, -1], method = "pearson")[1, 2]
-
-
-ggplot(hate_crime_subset, aes(x = data_year, y = count, color = group)) +
-  geom_line() +
-  labs(title = "Trends in Anti-Jewish and Other Hate Crimes Over Time",
-       x = "Year",
-       y = "Number of Hate Crimes",
-       color = "Hate Crime Type") +
-  theme_minimal()
-
-cat("Correlation between Anti-Jewish and Other Hate Crimes:", correlation, "\n")
-```
-```{r}
 correlation <- cor(hate_crime_pivot[, -1], method = "pearson")[1, 2]
 
 cat("Correlation between Anti-Jewish and Other Hate Crimes:", correlation, "\n")
