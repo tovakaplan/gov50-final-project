@@ -7,17 +7,17 @@ output:
     self_contained: false
 ---
 
-##Anti-Jewish Hate Crimes Across Time and Region
+Anti-Jewish Hate Crimes Across Time and Region
 
-##Introduction:
+Introduction:
 
-Anti-Jewish hate crimes have been an issue confronting the United States from the beginning, but the problem has recently taken center stage in American discourse. In the eight weeks since the Oct 7th Hamas attacks in Israel and the launch of Israel’s counteroffensive in Gaza, anti-Jewish hate crimes in the United States have risen by 337% compared to the previous 8-week period, alongside a 172% increase in Anti-Muslim hate crimes. (https://www.cnn.com/2023/10/29/us/hate-crimes-antisemitism-anti-muslim-dg/index.html ). Discussion around anti-Jewish hate crimes has increased in many avenues of American life, from the halls of Congress to the offices of Massachusetts Hall. However, in order to adequate understand and fight antisemitism, it is crucial to take a look at past data and identify trends that may be helpful in developing policy. 
+Anti-Jewish hate crimes have been an issue confronting the United States from the beginning, but the problem has recently taken center stage in American discourse. In the eight weeks since the Oct 7th Hamas attacks in Israel and the launch of Israel’s counteroffensive in Gaza, anti-Jewish hate crimes in the United States have risen by 337% compared to the previous 8-week period, alongside a 172% increase in anti-Muslim hate crimes. (https://www.cnn.com/2023/10/29/us/hate-crimes-antisemitism-anti-muslim-dg/index.html ). Discussion around anti-Jewish hate crimes has increased in many avenues of American life, from the halls of Congress to the offices of Massachusetts Hall. However, in order to adequately understand and fight antisemitism, it is crucial to take a look at past data and identify trends that may be helpful in developing policy. 
 
-This project takes a look at over three decades of FBI hate crime data to answer the research question of how the proportion of hate crimes that are anti-Jewish changes throughout time and by region. While some studies have examined the raw number of anti-Jewish hate crimes throughout time, I wanted to go a step further and investigate how the number of anti-Jewish hate crimes relate to the number of overall hate crimes: is the percentage of hate crimes that are targeted against Jews increasing or decreasing throughout time? Furthermore, I wanted to see whether the region of the US affected the trend of hate crimes, since different regions can have different histories with their Jewish population and may have individual trends that are different from the overall trend.  
+This project takes a look at over three decades of FBI hate crime data to answer the research question of how the percentage of hate crimes that are anti-Jewish changes throughout time and by region. While some studies have examined the raw number of anti-Jewish hate crimes throughout time, I wanted to go a step further and investigate how the number of anti-Jewish hate crimes relate to the number of overall hate crimes: is the percentage of hate crimes that are targeted against Jews increasing or decreasing throughout time? Furthermore, I wanted to see whether the region of the US affected the trend of hate crimes, since different regions can have different histories with their Jewish population and may have individual trends that are different from the overall trend.  
 
-My initial hypothesis is that the proportion of hate crimes that are anti-Jewish is increasing throughout time, with a particularly large increase in the Northeast. I developed this hypothesis because I believe that an increasing ability to access to anti-Jewish content on social media and a rise in political radicalism in the United States could contribute to Jewish people being disproportionately targeted. I believe that the Northeast will have the largest rise because Jewish communities are often most visible in these areas, while other regions like the South may have a higher percentage of racial or anti-LGBT hate crimes relative to anti-Jewish. 
+My initial hypothesis is that the proportion of hate crimes that are anti-Jewish is increasing throughout time, with a particularly large increase in the Northeast. I developed this hypothesis because I believe that an increasing ability to access anti-Jewish content on social media and a rise in political radicalism in the United States could contribute to Jewish people being increasingly disproportionately targeted. I believe that the Northeast will have the largest rise because Jewish communities are often most visible in these areas, while other regions like the South may have a higher percentage of racial or anti-LGBT hate crimes relative to anti-Jewish. 
 
-My null hypothesis is that there is no change in the proportion of hate crimes that are anti-Jewish over time. 
+My null hypothesis is that there is no change in the percentage of hate crimes that are anti-Jewish over time. 
 
 
 
@@ -36,18 +36,18 @@ hate_crime <- read.csv("~/Downloads/hate_crime (1) 2/hate_crime/hate_crime.csv")
 ```
 
 
-##Data Section:
+Data Section:
 
 The data source I used was the Federal Bureau of Investigation’s Crime Data Explorer, which provides comprehensive records of every hate crime recorded in the United States from years 1991-2023, as well as demographic information about the perpetrator, the victim, and the location the hate crime occurred. This is measured as a survey of local police precincts who report any hate crimes they process to the FBI’s centralized system. 
 
-The key dependent variable being analyzed is the proportion of all hate crimes that are anti-Jewish each year. This was not directly measured in the dataset, but I created it as an additional column by taking the raw number of anti-Jewish hate crimes recorded per year and dividing them by the raw total number of all hate crimes recorded per year. Both the number of anti-Jewish hate crimes and the number of total hate crimes were measured through the survey methods discussed above. The survey indicates what group each hate crime is targeted against (eg: “Anti-Jewish”, “Anti-Black”, “Anti-Gay”).  
+The key dependent variable being analyzed is the proportion of all hate crimes that are anti-Jewish each year. This was not directly measured in the dataset, but I created it as an additional column by taking the raw number of anti-Jewish hate crimes recorded each year and dividing it by the raw total number of all hate crimes recorded each year. Both the number of anti-Jewish hate crimes and the number of total hate crimes were measured through the survey methods discussed above. The survey indicates what group each hate crime is targeted against (eg: “Anti-Jewish”, “Anti-Black”, “Anti-Gay”).  
 
 The key independent variable is the year, which is recorded alongside each hate crime, spanning from January 1, 1991 to October 2, 2023. It is very important to note that this dataset was downloaded before the October 7 Hamas attacks, so the resulting large increase in anti-Jewish hate crimes is not reflected in the data.
 
 The variable held constant is the region that the hate crime occurred in, which is also indicated with each hate crime record. There are four regions that I analyzed: Midwest, Northeast, South, and West. I omitted analysis of the US Territories, because there was not enough data to conduct a meaningful analysis. 
 
 
-##Plot Summarizing Dependent Variable:
+Plot Summarizing Dependent Variable:
 
 The graph below provides a summary of one component of the dependent variable, the raw number of anti-Jewish hate crimes across time, disaggregated by region. 
 
@@ -75,9 +75,11 @@ ggplot(data = summary_data, aes(x = data_year, y = count, fill = region_name, co
   theme_minimal() 
 ```
 ```{r}
+##Download packages
 library(dplyr)
 library(tidyr)
 
+##Filter data to Anti-Jewish hate crimes, create new variable
 hate_crime_subset <- hate_crime |>
   group_by(data_year) |>
   summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
@@ -85,7 +87,7 @@ hate_crime_subset <- hate_crime |>
 ```
 
 
-This visualization plots the total number of hate crimes from 1991-2023, as well as the total number of Anti-Jewish hate crimes across time. 
+The following visualization plots the total number of hate crimes from 1991-2023, as well as the total number of Anti-Jewish hate crimes across time:
 
 
 
@@ -113,20 +115,40 @@ ggplot(hate_crime_subset, aes(x = data_year)) +
        y = "Number of Hate Crimes",
        color = "Hate Crime Type") +
   theme_minimal()
-
-cat("Correlation between Anti-Jewish and Total Hate Crimes:", correlation, "\n")
 ```
 
 
 It is important to note that the proportion of hate crimes that are anti-Jewish differs significantly by region. The region with the highest proportion of hate crimes that are anti-Jewish (across all years) is the Northeast at 26.3% and the region with the lowest proportion is the Midwest at 4.8%. This visualization represents that:
 
 
+```{r}
+# Calculate the average percentage of anti-Jewish hate crimes per region
+average_data <- hate_crime |>
+  filter(!(region_name %in% c("Other", "U.S. Territories"))) |>
+  group_by(region_name) |>
+  summarise(average_percent_anti_jewish = mean(bias_desc == "Anti-Jewish", na.rm = TRUE))
 
-##Results
+# Order the regions by average_percent_anti_jewish
+average_data <- average_data |>
+  arrange(desc(average_percent_anti_jewish))
+
+# Create a bar plot
+ggplot(average_data, aes(x = reorder(region_name, -average_percent_anti_jewish), 
+                        y = average_percent_anti_jewish,
+                        fill = region_name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Average Percent of Hate Crimes that are Anti-Jewish by Region",
+       x = "Region Name",
+       y = "Average Percent Anti-Jewish") +
+  theme_minimal() + guides(fill = FALSE)
+```
+
+
+Results
 
 I performed a regression analysis of each region to display a scatter plot, linear regression line, and linear regression equation for each region. For all the regression analyses, I used an alpha level of 0.05. 
 
-##All Regions Combined
+All Regions Combined
 
 The first scatterplot displays the regression line for all regions combined. The regression equation for these data is y = -0.15x + 323.07. X represents the year and Y represents the percent of all hate crimes that are Anti-Jewish (%). The coefficient for x in this equation is -0.15, which means that the trend shows that for every one additional year, the percentage of hate crimes that are Anti-Jewish decreased by 0.15%. This coefficient has a P-Value of 0.0000011, which is well below my alpha level of 0.05, so the results are statistically significant and I can reject the null hypothesis that there is no change in the percentage of hate crimes that are anti-Jewish over time. It is important to note that the R Squared value for the coefficient is 0.55, meaning that around 55% of the variance in percentage of anti-Jewish hate crimes over time can be explained by the model, which means that 45% of variability is not accounted for. Still, this result was surprising to me, and it is against my initial hypothesis that the percentage of hate crimes that are Anti-Jewish increased over time. 
 
@@ -219,19 +241,24 @@ for (i in seq_along(plots)) {
 }
 ```
 
-##South
+South:
+
 For the remaining analyses, I filtered the data by region and calculated a separate regression line for each region. For the South, the regression equation was y = -0.18x + 368.38. The coefficient of -0.18 means that for each additional year, the trend is that the percentage of hate crimes that are anti-Jewish decreased by 0.18 percentage points in the South. The coefficient of x variable has a p-value of 0, meaning that the data is statistically significant and the null hypothesis of no change of percentage of anti-Jewish hate crimes over time can be rejected. The R Squared value of this model is 0.69, meaning that 69% of variance in the percentage of anti-Jewish hate crimes over time can be explained by the model. The South’s regression equation had the highest R Squared value and the lowest P-Value out of all regions, indicating that the South region’s model was the best fit out of all of the regions. 
 
-##West
+West:
+
 For the West, the regression equation was -0.02x + 41.81. The coefficient of -0.02 means that for each increase of one year, the trend is that the percentage of hate crimes that were anti-Jewish decreased by 0.02 percentage points. But, the West region had the worst (highest) P-value of all regions at 0.59, well above the 0.05 level required to reject the null hypothesis. The R squared value was also the lowest of all regions at 0.009, meaning that this model only explained 0.09% of the variance in the percentage of anti-Jewish hate crimes throughout time. All of this taken together means that the regression equation for the West was the worst fit out of all regions. 
 
-##Northeast
+Northeast:
+
 For the Northeast, the regression equation was -0.07x + 165.69. The coefficient of -0.07 means that for each additional year, the trend is that the percentage of hate crimes that are anti-Jewish decreased by 0.18 percentage points in the Northeast region. However, the P-value of the coefficient is 0.25, which is above the alpha level of 0.05, meaning that the results are not statistically significant and we cannot reject the null hypothesis of no change in proportion of hate crimes that are anti-Jewish over time. The R Squared value is 0.04, which means that only 4% of the variance in the yearly percentage of anti-Jewish hate crimes can be explained by this model. 
 
-##Midwest
+Midwest:
+
 Finally, the regression equation for the Midwest region is -0.06x + 117.61. The coefficient of -0.06 means that for each increase of one year, the trend is that the percentage of hate crimes that were anti-Jewish decreased by 0.06 percentage points. The P-value for the variable of interest is 0.012, which means that the results are statistically significant because the P-value is below the Alpha level of 0.05. This means that we can reject the null hypothesis that there is no change in the proportion of hate crimes that are anti-Jewish throughout time. The R squared value is 0.192, meaning that this model can explain 19.2% of the variance in the percentage of anti-Jewish hate crimes from 1991- 2023. 
 
 Note:
+
 None of these regression equations indicate a causal effect of time on the percentage of hate crimes that are Anti-Jewish. This is because it is impossible for a year itself to cause an increase or decrease in the percentage of hate crimes that are anti-Jewish. Instead, hate crimes are caused by the factor of human behavior, among other variables. 
 
 
