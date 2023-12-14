@@ -142,7 +142,7 @@ correlation <- cor(hate_crime_subset[, -1], method = "pearson")[1, 2]
 
 ggplot(hate_crime_subset, aes(x = data_year)) +
   geom_line(aes(y = anti_jewish_count, color = "Anti-Jewish"), size = 1.5) +
-  geom_line(aes(y = total_count, color = "Total Hate Crimes"), linetype = "dashed", size = 1.5) +
+  geom_line(aes(y = total_count, color = "Total Hate Crimes"), size = 1.5) +
   labs(title = "Trends in Anti-Jewish and Total Hate Crimes Over Time",
        x = "Year",
        y = "Number of Hate Crimes",
@@ -152,10 +152,6 @@ ggplot(hate_crime_subset, aes(x = data_year)) +
 cat("Correlation between Anti-Jewish and Total Hate Crimes:", correlation, "\n")
 ```
 ```{r}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-
 hate_crime_subset <- hate_crime %>%
   group_by(data_year) %>%
   summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
@@ -164,99 +160,36 @@ hate_crime_subset <- hate_crime %>%
 
 correlation <- cor(hate_crime_subset[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
 
+# Fit linear model
+lm_model <- lm(percent_anti_jewish ~ data_year, data = hate_crime_subset)
+
+# Get coefficients of the model
+coefficients <- coef(lm_model)
+
+# Create equation text
+equation_text <- paste0("y = ", round(coefficients[1], 2), " + ", round(coefficients[2], 2), " * x")
+
+# Create the ggplot chart with regression equation
 ggplot(hate_crime_subset, aes(x = data_year, y = percent_anti_jewish)) +
   geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
-  labs(title = "Percentage of Anti-Jewish Hate Crimes Over Total Hate Crimes",
+  geom_point() +
+  stat_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
+  geom_text(aes(label = equation_text), x = max(hate_crime_subset$data_year), y = max(hate_crime_subset$percent_anti_jewish), hjust = 1, vjust = 1) +
+  labs(title = "Proportion of Anti-Jewish Hate Crimes Through Time",
        x = "Year",
-       y = "Percentage of Anti-Jewish Hate Crimes",
+       y = "Percentage of Hate Crimes that are Anti-Jewish (%)",
        color = "Hate Crime Type") +
-  theme_minimal() + geom_point()
+  theme_minimal()
 
+# Print correlation and coefficients
 cat("Correlation between Anti-Jewish and Total Hate Crimes:", correlation, "\n")
+cat("Regression Equation:", equation_text, "\n")
 ```
 
 
 
-```{r}
-library(dplyr)
-library(ggplot2)
 
-# "regions" variable
-regions <- unique(hate_crime$region_name)
 
-# List to store ggplot objects
-plots <- list()
-
-for (reg in regions) {
-  subset_data <- hate_crime %>%
-    filter(region_name == reg) %>%
-    group_by(data_year) %>%
-    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
-              total_count = n()) %>%
-    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
-
-  correlation <- cor(subset_data[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
-
-  plot <- ggplot(subset_data, aes(x = data_year, y = percent_anti_jewish)) +
-    geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
-    labs(title = paste("Percentage of Anti-Jewish Hate Crimes in", reg),
-         x = "Year",
-         y = "Percentage of Anti-Jewish Hate Crimes (%)") +
-    theme_minimal() +
-    geom_point()
-
-  plots[[reg]] <- plot
-
-  cat("Correlation between Anti-Jewish and Total Hate Crimes in", reg, ":", correlation, "\n")
-}
-
-# Display the plots
-plots
-```
-
-```{r}
-library(dplyr)
-library(ggplot2)
-
-regions <- unique(hate_crime$region_name)
-
-plots <- list()
-
-for (reg in regions) {
-  subset_data <- hate_crime %>%
-    filter(region_name == reg) %>%
-    group_by(data_year) %>%
-    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
-              total_count = n()) %>%
-    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
-
-  correlation <- cor(subset_data[, c("anti_jewish_count", "total_count")], method = "pearson")[1, 2]
-
-  lm_model <- lm(percent_anti_jewish ~ data_year, data = subset_data)
-  intercept <- coef(lm_model)[1]
-  slope <- coef(lm_model)[2]
-
-  equation_text <- sprintf("y = %.2f x + %.2f", slope, intercept)
-
-  plot <- ggplot(subset_data, aes(x = data_year, y = percent_anti_jewish)) +
-    geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed", formula = y ~ x) +
-    geom_point() +
-    labs(title = paste("Percentage of Anti-Jewish Hate Crimes in", reg),
-         x = "Year",
-         y = "Percentage of Anti-Jewish Hate Crimes",
-         subtitle = equation_text) +
-    theme_minimal()
-
-  plots[[reg]] <- plot
-
-  cat("Regression equation for Anti-Jewish and Total Hate Crimes in", reg, ":", equation_text, "\n")
-}
-
-# Display the plots
-for (i in seq_along(plots)) {
-  print(plots[[i]])
-}
-```
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -305,4 +238,99 @@ for (i in seq_along(plots)) {
   print(plots[[i]])
 }
 ```
-ffffff
+
+
+
+
+
+
+
+```{r}
+# Assuming hate_crime includes a 'region_name' column
+# Replace 'region_name' with the actual column name in your dataset
+regions <- unique(hate_crime$region_name)
+
+# Create an empty data frame to store the results
+result_df <- data.frame()
+
+# Perform linear regression on the entire dataset
+total_data <- hate_crime %>%
+  group_by(data_year) %>%
+  summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+            total_count = n()) %>%
+  mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+total_lm_model <- lm(percent_anti_jewish ~ data_year, data = total_data)
+
+# Summary of the linear model
+total_summary_model <- summary(total_lm_model)
+
+# Extract R-squared value for the total model
+total_r_squared <- total_summary_model$r.squared
+
+# Calculate residuals for the total model
+total_residuals <- residuals(total_lm_model)
+
+# Calculate standard deviation of residuals for the total model
+total_std_dev <- sd(total_residuals)
+
+# Create a data frame for the total model
+total_result <- data.frame(
+  Region = "All Regions Combined",
+  Coefficient = coef(total_lm_model),
+  P_Value = total_summary_model$coefficients[, 4],
+  R_Squared = total_r_squared,
+  Standard_Deviation = total_std_dev
+)
+
+# Append the total result to the main data frame
+result_df <- bind_rows(result_df, total_result)
+
+# Continue with the loop for individual regions
+for (reg in regions) {
+  # Exclude "U.S. Territories" and "Other"
+  if (reg %in% c("U.S. Territories", "Other")) {
+    next
+  }
+
+  subset_data <- hate_crime %>%
+    filter(region_name == reg) %>%
+    group_by(data_year) %>%
+    summarise(anti_jewish_count = sum(bias_desc == "Anti-Jewish"),
+              total_count = n()) %>%
+    mutate(percent_anti_jewish = (anti_jewish_count / total_count) * 100)
+
+  lm_model <- lm(percent_anti_jewish ~ data_year, data = subset_data)
+
+  # Summary of the linear model
+  summary_model <- summary(lm_model)
+
+  # Extract R-squared value
+  r_squared <- summary_model$r.squared
+
+  # Calculate residuals for the model
+  residuals_model <- residuals(lm_model)
+
+  # Calculate standard deviation of residuals for the model
+  std_dev_model <- sd(residuals_model)
+
+  # Create a data frame with coefficients, p-values, R-squared, and standard deviation
+  result <- data.frame(
+    Region = reg,
+    Coefficient = coef(lm_model),
+    P_Value = summary_model$coefficients[, 4],
+    R_Squared = r_squared,
+    Standard_Deviation = std_dev_model
+  )
+
+  # Append the result to the main data frame
+  result_df <- bind_rows(result_df, result)
+}
+
+# Add title to the top of the kable table
+kable(result_df, format = "html", col.names = c("Region", "Coefficient", "P-Value", "R-Squared", "Standard Deviation")) %>%
+  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center") %>%
+  add_header_above(c(" ", "Regression Information by Region" = 5))
+```
+
+
